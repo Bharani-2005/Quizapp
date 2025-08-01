@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz app</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div id="quiz" class="centered">
+            <h1>Random quiz</h1>
+            <h2 id="question" class="headline-secondary-grouped"></h2>
+            <h3 id="score"></h3>
+            <p id="choice0"></p>
+            <button id="guess0" class="btn-default">select Answer</button>
+            <p id="choice1"></p>
+            <button id="guess1" class="btn-default">select Answer</button>
+            <p id="choice2"></p>
+            <button id="guess2" class="btn-default">select Answer</button>
+            <p id="choice3"></p>
+            <button id="guess3" class="btn-default">select Answer</button>
+            <p id="choice4"></p>
+            <footer>
+                <p id="progress">question x of y</p>
+            </footer>
+
+        </div>
+    </div>
+    </body>
+</html>
+        <script>
+    function Quiz(questions) {
+        this.score = 0;
+        this.questions = questions;
+        this.currentQuestionIndex = 0;
+    }
+
+    Quiz.prototype.guess = function(answer) {
+        if (this.getCurrentQuestion().isCorrectAnswer(answer)) {
+            this.score++;
+        }
+        this.currentQuestionIndex++;
+    };
+
+    Quiz.prototype.getCurrentQuestion = function() {
+        return this.questions[this.currentQuestionIndex];
+    };
+    
+
+    Quiz.prototype.hasEnded = function() {
+        return this.currentQuestionIndex >= this.questions.length;
+    };
+
+    function Question(text, choices, answer) {
+        this.text = text;
+        this.choices = choices;
+        this.answer = answer;
+    }
+
+    Question.prototype.isCorrectAnswer = function(choice) {
+        return this.answer === choice;
+    };
+
+    var QuizUI = {
+        displayNext: function() {
+            if (quiz.hasEnded()) {
+                this.displayScore();
+            } else {
+                this.displayQuestion();
+                this.displayChoices();
+                this.displayProgress();
+            }
+        },
+
+        displayQuestion: function() {
+            this.populateIdWithHTML("question", quiz.getCurrentQuestion().text);
+        },
+
+        displayChoices: function() {
+            var choices = quiz.getCurrentQuestion().choices;
+            for (var i = 0; i < choices.length; i++) {
+                this.populateIdWithHTML("choice" + i, choices[i]);
+                this.guessHandler("guess" + i, choices[i]);
+            }
+        },
+
+        displayScore: function() {
+            var gameOverHTML = "<h1>Game over</h1>";
+            gameOverHTML += "<h2>Your score is: " + quiz.score + " / " + quiz.questions.length + "</h2>";
+            this.populateIdWithHTML("quiz", gameOverHTML);
+        },
+
+        populateIdWithHTML: function(id, text) {
+            var element = document.getElementById(id);
+            if (element) element.innerHTML = text;
+        },
+
+        guessHandler: function(id, guess) {
+            var button = document.getElementById(id);
+            button.onclick = function() {
+                quiz.guess(guess);
+                QuizUI.displayNext();
+            };
+        },
+
+        displayProgress: function() {
+            var currentQuestionNumber = quiz.currentQuestionIndex + 1;
+            this.populateIdWithHTML("progress", "Question " + currentQuestionNumber + " of " + quiz.questions.length);
+        }
+    };
+
+    var Questions = [
+        new Question("Which CSS property changes the text color?", ["i)font-color", "ii)color", "iii)text-color", "iv)font-style"], "ii)color"),
+        new Question("Which language makes a website interactive?",["i)HTML","ii)CSS","iii)JavaScript","iv)SQL"],"iii)JavaScript"),
+        new Question("Which hook is used to manage state in a React component?", ["i)useEffect", "ii)useState", "iii)useContext", "iv)useRef"], "ii)useState"),
+        new Question("Which keyword is used to declare a variable in JavaScript?", ["i)var", "ii)let", "iii)const", "iv)All of the above"], "iv)All of the above")
+    ];
+
+    var quiz = new Quiz(Questions);
+    QuizUI.displayNext();
+</script>
+
+
